@@ -47,7 +47,7 @@ void hash(int *k1, int *k2, int *num, int size)
     *k1 = 0;
     *k2 = 0;
     
-    for (i = 0; i < sizeof(int)-1; ++i) {
+    for (i = 0; i < sizeof(int)/2; ++i) {
         *k1 = ((size+1) * (*k1) + *(p+i)) % size;
         *k2 = ((size-1) * (*k2) + *(p+i)) % size;
     }
