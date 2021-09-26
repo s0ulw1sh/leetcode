@@ -45,9 +45,7 @@ int hash(int *num, int size, int key)
     for (i = 0; i < sizeof(int); ++i)
         res = (key * res + *(p+i)) % size;
     
-    res = (res * 2 + 1) % size;
-    
-    return res;
+    return (res * 2 + 1) % size;
 }
 
 int* twoSum(int* nums, int numsSize, int target, int* returnSize)
@@ -65,7 +63,7 @@ int* twoSum(int* nums, int numsSize, int target, int* returnSize)
         k2 = hash(nums + i, numsSize, numsSize - 1);
         z = 0;
         
-        while(map[k1].data != NULL && z < numsSize) {
+        while(map[k1].data != NULL && z < numsSize/2-1) {
             k1 = (k1 + k2) % numsSize;
             z++;
         }
@@ -81,13 +79,11 @@ int* twoSum(int* nums, int numsSize, int target, int* returnSize)
         k2 = hash(&diff, numsSize, numsSize - 1);
         z  = 0;
         
-        while(map[k1].data != NULL && z < numsSize) {
-            if (map[k1].data == nums + i) {
-                k1 = (k1 + k2) % numsSize;
-                z++;
-                continue;
-            }
-                
+        if (map[k1].data == NULL || map[k1].data == nums + i)
+            continue;
+
+        while(z < numsSize/2) {
+            
             if (*(map[k1].data) == diff) {
                 res[0] = i;
                 res[1] = map[k1].idx;
@@ -96,9 +92,9 @@ int* twoSum(int* nums, int numsSize, int target, int* returnSize)
             }
             
             k1 = (k1 + k2) % numsSize;
+            if (map[k1].data == NULL) break;
             z++;
         }
-        
     }
     
     return res;
