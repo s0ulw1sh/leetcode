@@ -32,10 +32,11 @@ Constraints:
     Only one valid answer exists.
 */
 
-struct node {
-    int *data;
-    int idx;
-};
+
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
 
 int hash(int *num, int size, int key)
 {
@@ -51,25 +52,24 @@ int hash(int *num, int size, int key)
 int* twoSum(int* nums, int numsSize, int target, int* returnSize)
 {
     int i, diff, z, k1, k2,
-        *res = (int*) malloc(sizeof(int)*2);
-    struct node *map = (struct node*) malloc(sizeof(struct node)*numsSize);
+        *res  = malloc(sizeof(int)*2);
+    int **map = malloc(sizeof(int*)*numsSize);
     
     *returnSize = 2;
     
-    memset(map, 0, sizeof(struct node)*numsSize);
+    memset(map, 0, sizeof(int*)*numsSize);
     
     for (i = 0; i < numsSize; i++) {
         k1 = hash(nums + i, numsSize, numsSize + 1);
         k2 = hash(nums + i, numsSize, numsSize - 1);
         z = 0;
         
-        while(map[k1].data != NULL && z < numsSize/2-1) {
+        while(map[k1] != NULL && z < numsSize/2-1) {
             k1 = (k1 + k2) % numsSize;
             z++;
         }
         
-        map[k1].data = nums + i;
-        map[k1].idx  = i;
+        map[k1] = nums + i;
     }
    
     for (i = 0; i < numsSize; i++) {
@@ -79,23 +79,27 @@ int* twoSum(int* nums, int numsSize, int target, int* returnSize)
         k2 = hash(&diff, numsSize, numsSize - 1);
         z  = 0;
         
-        if (map[k1].data == NULL || map[k1].data == nums + i)
+        if (map[k1] == NULL || map[k1] == nums + i)
             continue;
 
         while(z < numsSize/2) {
             
-            if (*(map[k1].data) == diff) {
+            if (*(map[k1]) == diff) {
                 res[0] = i;
-                res[1] = map[k1].idx;
+                res[1] = map[k1] - nums;
+                
+                free(map);
                 
                 return res;
             }
             
             k1 = (k1 + k2) % numsSize;
-            if (map[k1].data == NULL) break;
+            if (map[k1] == NULL) break;
             z++;
         }
     }
+    
+    free(map);
     
     return res;
 }
