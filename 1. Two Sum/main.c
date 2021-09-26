@@ -38,68 +38,62 @@ Constraints:
  * Note: The returned array must be malloced, assume caller calls free().
  */
 
-int hash(int *num, int size, int key)
+
+void hash(int *k1, int *k2, int *num, int size)
 {
     unsigned char *p = (unsigned char*) num;
-    int i, res = 0;
-
-    for (i = 0; i < sizeof(int); ++i)
-        res = (key * res + *(p+i)) % size;
+    int i;
     
-    return (res * 2 + 1) % size;
+    *k1 = 0;
+    *k2 = 0;
+    
+    for (i = 0; i < sizeof(int)-1; ++i) {
+        *k1 = ((size+1) * (*k1) + *(p+i)) % size;
+        *k2 = ((size-1) * (*k2) + *(p+i)) % size;
+    }
+    
+    *k1 = ((*k1) * 2 + 1) % size;
+    *k2 = ((*k2) * 2 + 1) % size;
 }
 
 int* twoSum(int* nums, int numsSize, int target, int* returnSize)
 {
-    int i, diff, z, k1, k2,
-        *res  = malloc(sizeof(int)*2);
-    int **map = malloc(sizeof(int*)*numsSize);
+    int i, diff, z, k1, k2;
+    int *map = calloc(numsSize, sizeof(int));
     
     *returnSize = 2;
     
-    memset(map, 0, sizeof(int*)*numsSize);
-    
     for (i = 0; i < numsSize; i++) {
-        k1 = hash(nums + i, numsSize, numsSize + 1);
-        k2 = hash(nums + i, numsSize, numsSize - 1);
-        z = 0;
+        hash(&k1, &k2, nums + i, numsSize);
         
-        while(map[k1] != NULL && z < numsSize/2-1) {
+        for(z = numsSize/2-1; map[k1] != NULL && z != 0; z--)
             k1 = (k1 + k2) % numsSize;
-            z++;
-        }
         
-        map[k1] = nums + i;
+        map[k1] = i+1;
     }
    
     for (i = 0; i < numsSize; i++) {
         diff = target - nums[i];
+     
+        hash(&k1, &k2, &diff, numsSize);
         
-        k1 = hash(&diff, numsSize, numsSize + 1);
-        k2 = hash(&diff, numsSize, numsSize - 1);
-        z  = 0;
-        
-        if (map[k1] == NULL || map[k1] == nums + i)
+        if (map[k1] == 0 || (map[k1]-1) == i)
             continue;
-
-        while(z < numsSize/2) {
-            
-            if (*(map[k1]) == diff) {
-                res[0] = i;
-                res[1] = map[k1] - nums;
+       
+        for(z = numsSize/2; map[k1] != 0 && z != 0; z--) {
+            if (*(nums + (map[k1]-1)) == diff) {
+                map[1] = (map[k1]-1);
+                map[0] = i;
                 
-                free(map);
-                
-                return res;
+                return map;
             }
             
             k1 = (k1 + k2) % numsSize;
-            if (map[k1] == NULL) break;
-            z++;
         }
     }
     
-    free(map);
-    
-    return res;
+    map[0] = -1;
+    map[1] = -1;
+
+    return map;
 }
