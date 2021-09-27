@@ -2,10 +2,7 @@ class Solution:
     def twoSum(self, nums: List[int], target: int) -> List[int]:
         out = [-1, -1]
         obj = {}
-        
-        for i in range(len(nums)):
-            obj[nums[i]] = i
-        
+
         for i in range(len(nums)):
             diff = target - nums[i]
             
@@ -14,5 +11,7 @@ class Solution:
                 out[1] = obj[diff]
                 
                 return out
+            else:
+                obj[nums[i]] = i
         
         return out
